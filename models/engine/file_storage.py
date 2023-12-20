@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
+import os
 import json
 
 
@@ -8,9 +9,16 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    def all(self):
+    def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        return FileStorage.__objects
+        if cls is None:
+            return FileStorage.__objects
+        else:
+            clss = {}
+            for key, value in FileStorage.__objects.items():
+                if type(value) is cls:
+                    clss[key] = value
+            return clss
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -36,15 +44,29 @@ class FileStorage:
         from models.review import Review
 
         classes = {
-                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                    'BaseModel': BaseModel, 'Place': Place, 'User': User,
                     'State': State, 'City': City, 'Amenity': Amenity,
                     'Review': Review
                   }
         try:
             temp = {}
-            with open(FileStorage.__file_path, 'r') as f:
-                temp = json.load(f)
-                for key, val in temp.items():
+            if os.path.getsize(FileStorage.__file_path) > 0:
+                with open(FileStorage.__file_path, 'r') as f:
+                    temp = json.load(f)
+                    for key, val in temp.items():
                         self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
+
+    def delete(self, obj=None):
+        """Delete obj from __objects if its inside"""
+        if obj is not None:
+            key = str(obj.__class__.__name__) + "." + str(obj.id)
+            del self.__objects[key]
+            self.save()
+        else:
+            return
+
+    def close(self):
+        """Reset the use of data"""
+        self.reload()
