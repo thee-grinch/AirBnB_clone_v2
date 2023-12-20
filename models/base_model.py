@@ -5,7 +5,7 @@ models in our hbnb clone
 """
 import uuid
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy import Column, String, DateTime
 from datetime import datetime
 
 Base = declarative_base()
