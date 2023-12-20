@@ -158,6 +158,7 @@ class HBNBCommand(cmd.Cmd):
     def do_show(self, args):
         """ Method to show an individual object """
         try:
+            print_list = []
             if not args:
                 raise SyntaxError()
             my_list = args.split(" ")
@@ -168,7 +169,12 @@ class HBNBCommand(cmd.Cmd):
             objects = storage.all()
             key = my_list[0] + '.' + my_list[1]
             if key in objects:
-                print(objects[key])
+                obj = objects[key].to_dict()
+                obj.pop('_sa_instance_state', None)
+                print_list.append("[{}] ({}) {}".format(obj['__class__'],
+                                                        obj['id'],
+                                                        obj))
+                print(print_list)
             else:
                 raise KeyError()
         except SyntaxError:
@@ -352,6 +358,14 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
+        # Add KeyboardInterrupt handler
+    def cmdloop(self, intro=None):
+        try:
+            return cmd.Cmd.cmdloop(self, intro)
+        except KeyboardInterrupt:
+            print()
+            exit()
 
 
 if __name__ == "__main__":
