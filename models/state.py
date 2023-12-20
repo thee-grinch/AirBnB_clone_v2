@@ -3,7 +3,6 @@
 State Module for HBNB project
 """
 from os import getenv
-from models import storage
 from sqlalchemy import String, Column
 from models.base_model import BaseModel, Base
 from sqlalchemy.orm import relationship
@@ -24,6 +23,7 @@ class State(BaseModel, Base):
         def cities(self):
             """Gets list of all related cities"""
             from models.city import City
+            from models import storage
             cities = []
             for city in list(storage.all(City).values()):
                 if city.state_id == self.id:
