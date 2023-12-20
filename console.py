@@ -145,9 +145,6 @@ class HBNBCommand(cmd.Cmd):
             new_instance = eval(arg_list[0])()
         else:
             new_instance = HBNBCommand.classes[class_name](**kwargs)
-            # storage.new(new_instance)
-            # print(new_instance)
-
         storage.__dict__.update(kwargs)
         new_instance.save()
         # storage.save()
@@ -233,14 +230,26 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.all().items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
+            for _, v in storage.all(HBNBCommand.classes[args]).items():
+                obj_dict = v.to_dict()
+                obj_dict.pop('_sa_instance_state', None)
+                print_list.append("[{}] ({}) {}".format(obj_dict['__class__'],
+                                                        obj_dict['id'],
+                                                        obj_dict))
         else:
-            for k, v in storage.all().items():
-                print_list.append(str(v))
-
-        print(print_list)
+            for _, v in storage.all().items():
+                obj_dict = v.to_dict()
+                obj_dict.pop('_sa_instance_state', None)
+                print_list.append("[{}] ({}) {}".format(obj_dict['__class__'],
+                                                        obj_dict['id'],
+                                                        obj_dict))
+        print("[", end="")
+        for i in range(len(print_list)):
+            if (i == len(print_list) - 1):
+                print(print_list[i], end="")
+            else:
+                print(print_list[i], end=", ")
+        print("]")
 
     def help_all(self):
         """ Help information for the all command """

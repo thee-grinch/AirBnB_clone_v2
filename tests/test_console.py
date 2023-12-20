@@ -9,7 +9,7 @@ from unittest.mock import patch
 from models.engine.file_storage import FileStorage
 from models.state import State
 from console import HBNBCommand
-import console
+# import console
 
 
 @patch('console.storage')
