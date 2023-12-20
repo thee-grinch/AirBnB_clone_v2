@@ -145,8 +145,12 @@ class HBNBCommand(cmd.Cmd):
             new_instance = eval(arg_list[0])()
         else:
             new_instance = HBNBCommand.classes[class_name](**kwargs)
-            storage.new(new_instance)
-        storage.save()
+            # storage.new(new_instance)
+            # print(new_instance)
+
+        storage.__dict__.update(kwargs)
+        new_instance.save()
+        # storage.save()
         print(new_instance.id)
 
     def help_create(self):
@@ -184,10 +188,6 @@ class HBNBCommand(cmd.Cmd):
 
     def help_show(self):
         """ Help information for the show command """
-        from models.engine.db_storage import DBStorage
-        DBStorage()
-        DBStorage().reload()
-        print("DBStorage()")
         print("Shows an individual instance of a class")
         print("[Usage]: show <className> <objectId>\n")
 
