@@ -1,73 +1,108 @@
 #!/usr/bin/python3
-
-"""Test cases for the console"""
-from io import StringIO
+"""Defines unittests for console.py."""
 import os
+import pep8
 import unittest
-import MySQLdb
+import models
 from unittest.mock import patch
-from models.engine.file_storage import FileStorage
-from models.state import State
+from io import StringIO
 from console import HBNBCommand
-# import console
+from models.engine.db_storage import DBStorage
+from models.engine.file_storage import FileStorage
 
 
-@patch('console.storage')
 class TestConsole(unittest.TestCase):
-    """Tests console.py"""
+    """Unittests for testing the console.py interpreter."""
 
-    def query_db(self, string):
-        """Sending database query"""
-        db = MySQLdb.connect(
-            user=os.getenv('HBNB_MYSQL_USER'),
-            host=os.getenv('HBNB_MYSQL_HOST'),
-            passwd=os.getenv('HBNB_MYSQL_PWD'),
-            port=3306,
-            db=os.getenv('HBNB_MYSQL_DB')
-        )
-        cur = db.cursor()
-        cur.execute(string)
-        count = cur.fetchall()
-        cur.close()
-        db.close()
-        return count
+    @classmethod
+    def setUpClass(cls):
+        """HBNBCommand testing setup.
 
-    def ouput(self, command):
-        """Returns the output from stdout"""
-        with patch('sys.stdout', new=StringIO()) as output:
-            HBNBCommand.onecmd(command)
-            return output.getvalue().strip()
+        """
+        try:
+            os.rename("file.json", "tmp")
+        except IOError:
+            pass
+        cls.HBNB = HBNBCommand()
 
-    @unittest.skipIf(os.getenv("HBNB_TYPE_STORAGE") != 'db',
-                     'only db storage is supported for testing')
-    def test_create_with_att(self):
-        """Test do_create with attribute"""
-        sql = "SELECT * FROM states"
-        count = self.query_db(sql)
-        self.ouput('create State name="California"')
-        new_count = self.query_db(sql)
-        self.assertEqual(len(new_count) - len(count), 1)
+    @classmethod
+    def tearDownClass(cls):
+        """HBNBCommand testing teardown.
+        """
+        try:
+            os.rename("tmp", "file.json")
+        except IOError:
+            pass
+        del cls.HBNB
+        if type(models.storage) is DBStorage:
+            models.storage._DBStorage__session.close()
 
-    @unittest.skipIf(os.getenv("HBNB_TYPE_STORAGE") != 'file',
-                     'only file storage is supported for testing')
-    def test_state_deletion(self):
-        """Test deletion of State objects"""
-        fs = FileStorage()
-        new_state = State()
-        new_state.name = "California"
-        fs.new(new_state)
-        fs.save()
-        all_states = self.fs.all(State)
-        initial_state_count = len(all_states)
-        fs.delete(new_state)
-        fs.save()
-        all_states = self.fs.all(State)
-        self.assertEqual(len(all_states), initial_state_count - 1)
+    def setUp(self):
+        """Reset FileStorage objects dictionary."""
+        FileStorage._FileStorage__objects = {}
 
-        # with patch('sys.stdout', new=StringIO()) as id:
-        #     HBNBCommand().onecmd('create State name="California_is_good"')
-        #     model_id = id.getvalue()
-        #     self.assertTrue(len(model_id) > 0)
-        # with patch('sys.stdout', new=StringIO()) as contents:
-        #     HBNBCommand().onecmd('all State')
-        #     self.assertTrue("California is good" in contents.getvalue())
+    def tearDown(self):
+        """Delete any created file.json."""
+        try:
+            os.remove("file.json")
+        except IOError:
+            pass
+
+    def test_pep8(self):
+        """Test Pep8 styling."""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(["console.py"])
+        self.assertEqual(p.total_errors, 0, "fix Pep8")
+
+    def test_docstrings(self):
+        """Check for docstrings."""
+        self.assertIsNotNone(HBNBCommand.__doc__)
+        self.assertIsNotNone(HBNBCommand.emptyline.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_quit.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_EOF.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_create.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_show.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_destroy.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_all.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_update.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_count.__doc__)
+        self.assertIsNotNone(HBNBCommand.default.__doc__)
+
+    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    def test_create_kwargs(self):
+        """Test create command with kwargs."""
+        with patch("sys.stdout", new=StringIO()) as f:
+            call = ('create Place city_id="0001" name="My_house" '
+                    'number_rooms=4 latitude=37.77 longitude=a')
+            self.HBNB.onecmd(call)
+            pl = f.getvalue().strip()
+        with patch("sys.stdout", new=StringIO()) as f:
+            self.HBNB.onecmd("all Place")
+            output = f.getvalue()
+            self.assertIn(pl, output)
+            self.assertIn("'city_id': '0001'", output)
+            self.assertIn("'name': 'My house'", output)
+            self.assertIn("'number_rooms': 4", output)
+            self.assertIn("'latitude': 37.77", output)
+            self.assertNotIn("'longitude'", output)
+
+    def test_show(self):
+        """Test show command."""
+        with patch("sys.stdout", new=StringIO()) as f:
+            self.HBNB.onecmd("show")
+            self.assertEqual(
+                "** class name missing **\n", f.getvalue())
+
+    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    def test_all(self):
+        """Test all command input."""
+        with patch('sys.stdout', new=StringIO()) as f:
+            self.HBNB.onecmd("all Nothing")
+            self.assertEqual("** class doesn't exist **\n", f.getvalue())
+        with patch("sys.stdout", new=StringIO()) as f:
+            self.HBNB.onecmd("all State")
+            self.assertEqual("[]\n", f.getvalue())
+
+
+if __name__ == "__main__":
+    unittest.main()
