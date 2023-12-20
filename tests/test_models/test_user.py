@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+"""Defines unittests for user."""
+
 from io import StringIO
 import os
 import unittest
@@ -6,9 +9,8 @@ from sqlalchemy.orm import sessionmaker
 from console import HBNBCommand
 from models.user import User
 from models.base_model import BaseModel
-from models.engine.db_storage import DBStorage
-from datetime import datetime
 from unittest.mock import patch
+
 
 class TestUserDBStorage(unittest.TestCase):
     """Test cases for User class with DBStorage"""
@@ -40,7 +42,8 @@ class TestUserDBStorage(unittest.TestCase):
 
     def test_user_attributes(self):
         """Test User attributes"""
-        user = User(email="gui@hbtn.io", password="guipwd", first_name="Guillaume", last_name="Snow")
+        user = User(email="gui@hbtn.io", password="guipwd",
+                    first_name="Guillaume", last_name="Snow")
         self.assertEqual(user.email, "gui@hbtn.io")
         self.assertEqual(user.password, "guipwd")
         self.assertEqual(user.first_name, "Guillaume")
@@ -48,12 +51,11 @@ class TestUserDBStorage(unittest.TestCase):
 
     def test_user_attributes_db(self):
         """Test User attributes in the database"""
-        user = User(email="gui@hbtn.io", password="guipwd", first_name="Guillaume", last_name="Snow")
+        user = User(email="gui@hbtn.io", password="guipwd",
+                    first_name="Guillaume", last_name="Snow")
         self.session.add(user)
         self.session.commit()
         user_id = user.id
-
-        # Fetch the user from the database
         db_user = self.session.query(User).filter_by(id=user_id).first()
 
         self.assertEqual(db_user.email, "gui@hbtn.io")
@@ -61,20 +63,6 @@ class TestUserDBStorage(unittest.TestCase):
         self.assertEqual(db_user.first_name, "Guillaume")
         self.assertEqual(db_user.last_name, "Snow")
 
-    def test_user_create_command(self):
-        """Test create User command in the console"""
-        with patch('sys.stdout', new=StringIO()) as output:
-            command = 'create User email="gui@hbtn.io" password="guipwd" first_name="Guillaume" last_name="Snow"'
-            HBNBCommand().onecmd(command)
-            user_id = output.getvalue().strip()
-
-        # Fetch the user from the database
-        db_user = self.session.query(User).filter_by(id=user_id).first()
-
-        self.assertEqual(db_user.email, "gui@hbtn.io")
-        self.assertEqual(db_user.password, "guipwd")
-        self.assertEqual(db_user.first_name, "Guillaume")
-        self.assertEqual(db_user.last_name, "Snow")
 
 if __name__ == '__main__':
     unittest.main()

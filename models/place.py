@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-""" Place Module for HBNB project """
+"""
+Place Module for HBNB project
+"""
 from os import getenv
 from models.base_model import BaseModel, Base
 from sqlalchemy.orm import relationship
@@ -14,7 +16,9 @@ place_amenity = Table("place_amenity", Base.metadata,
 
 
 class Place(BaseModel, Base):
-    """ A place to stay """
+    """Represet a Place Table
+    conatins, city_id, user_id, name, description
+    and other room descriptions field"""
     __tablename__ = 'places'
     city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
     user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
