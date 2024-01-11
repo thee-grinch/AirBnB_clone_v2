@@ -2,7 +2,7 @@
 """
 Generates a .tgz archive using do_pack fun
 """
-from fabric.api import local, run, put, env
+from fabric.api import local, run, put, env, task
 from datetime import datetime
 import os
 
@@ -23,26 +23,29 @@ def do_pack():
         return None
 
 
+@task
 def do_deploy(archive_path):
-    """
-    Distributes an archive to web servers.
-    """
-    if os.path.exists(archive_path):
+    """Distributes an archive to the servers"""
+    try:
         archive_filename = os.path.basename(archive_path)
-        target_folder = "/data/web_static/releases/{}".format(archive_filename
-                                                              [:-4])
-        temp_archive_path = "/tmp/{}".format(archive_filename)
+        release_directory_name = archive_filename[:-4]
 
-        put(archive_path, "/tmp/")
-        run("sudo mkdir -p {}".format(target_folder))
-        run("sudo tar -xzf {} -C {}/".format(temp_archive_path, target_folder))
-        run("sudo rm {}".format(temp_archive_path))
-        run("sudo mv {}/web_static/* {}".format(target_folder, target_folder))
-        run("sudo rm -rf {}/web_static".format(target_folder))
-        run("sudo rm -rf /data/web_static/current")
-        run("sudo ln -s {} /data/web_static/current".format(target_folder))
+        put(archive_path, '/tmp/')
+        run(f'mkdir -p /data/web_static/releases/{release_directory_name}/')
+        run(f'tar -xzf /tmp/{archive_filename} -C /data/web_static/releases/\
+            {release_directory_name}/')
+        run(f'rm /tmp/{archive_filename}')
+
+        run(f'mv /data/web_static/releases/{release_directory_name}\
+             /web_static/* '
+            f'/data/web_static/releases/{release_directory_name}/')
+
+        run('rm -rf /data/web_static/releases/web_static')
+        run('rm -rf /data/web_static/current')
+        run(f'ln -s /data/web_static/releases/{release_directory_name}/ /data/\
+             web_static/current')
 
         print("New version deployed!")
         return True
-
-    return False
+    except Exception:
+        return False
