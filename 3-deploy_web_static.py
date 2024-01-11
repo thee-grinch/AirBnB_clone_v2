@@ -20,8 +20,9 @@ def do_pack():
         full_path = "versions/{}".format(archive_name)
         local("tar -cvzf {} web_static/".format(full_path))
         return full_path
-    except:
+    except Exception:
         return None
+
 
 def do_deploy(archive_path):
     """Distributes an archive to your web servers"""
@@ -31,15 +32,18 @@ def do_deploy(archive_path):
         put(archive_path, "/tmp/")
         archive_filename = os.path.basename(archive_path)
         folder = "/data/web_static/releases/{}".format(archive_filename.split('.')[0])
-        run("tar xvf /tmp/{} -C {}".format(archive_path, folder))
-        run("sudo rm /tmp/{}".format(archive_path))
+        run("sudo mkdir -p {}".format(folder))
+        run("tar -xzf /tmp/{} -C {}".format(archive_filename, folder))
+        run("sudo rm /tmp/{}".format(archive_filename))
         current_link = "/data/web_static/current"
-        run("rm -f {}".format(current_link))
+        run("sudo rm -rf {}".format(current_link))
         run("sudo ln -s {} {}".format(folder, current_link))
         print("New version deployed!")
         return True
-    except Exception:
+    except Exception as e:
+        print(e)
         return False
+
 
 def deploy():
     """Deploys to servers"""
