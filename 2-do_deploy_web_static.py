@@ -38,8 +38,11 @@ def do_deploy(archive_path):
         run("sudo tar -xzvf {} -C {}/".format(temp_archive_path,
                                               target_folder))
         run("sudo rm {}".format(temp_archive_path))
-        run("sudo rm -rf /data/web_static/current")
-        run("sudo ln -s {} /data/web_static/current".format(target_folder))
+        run("sudo mv {}/web_static/* {}".format(target_folder,
+                                                target_folder))
+        run("sudo rm -rf {}/web_static".format(target_folder))
+        run("mkdir -p /data/web_static/current")
+        run("sudo ln -sf {} /data/web_static/current".format(target_folder))
 
         print("New version deployed!")
         return True
