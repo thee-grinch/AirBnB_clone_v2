@@ -5,10 +5,8 @@ Deletes out-of-date archives
 import os
 from fabric.api import local, lcd, cd, run, env
 
-
 env.hosts = ['52.201.221.134', '52.87.219.193']
 env.user = 'ubuntu'
-
 
 def do_clean(number=0):
     """Deletes out-of-date archives
@@ -27,7 +25,7 @@ def do_clean(number=0):
 
     remote_folder = '/data/web_static/releases'
     with cd(remote_folder):
-        remote_archives = run('ls -tr').split('')
+        remote_archives = run('ls -tr').split()
         remote_archives = [a for a in remote_archives if "web_static_" in a]
         to_delete_remote = remote_archives[number:]
 
