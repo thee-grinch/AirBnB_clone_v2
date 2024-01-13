@@ -41,7 +41,7 @@ def do_deploy(archive_path):
         run("sudo mv {}/web_static/* {}".format(target_folder,
                                                 target_folder))
         run("sudo rm -rf {}/web_static".format(target_folder))
-        run("rm -f /data/web_static/current/")
+        run("sudo rm -f /data/web_static/current/")
         run("mkdir -p /data/web_static/current/")
         run("sudo ln -snf {} /data/web_static/current".format(target_folder))
 
