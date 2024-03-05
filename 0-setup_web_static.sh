@@ -21,5 +21,4 @@ server {
         }
 }" | sudo tee /etc/nginx/site-enabled/default > /dev/null
 
-sudo service nginx start
-~                          
+sudo service nginx start                     
