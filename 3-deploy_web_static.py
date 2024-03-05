@@ -33,3 +33,10 @@ def do_deploy(archive_path):
         return True
     except:
         return False
+
+def deploy():
+    '''this function deploys an archive to a web server'''
+    archive_path = do_pack()
+    if archive_path is None:
+        return False
+    return do_deploy(archive_path)
