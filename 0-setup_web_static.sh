@@ -11,7 +11,7 @@ ln -sf /data/web_static/releases/test/ /data/web_static/current
 echo "Mordecai Muvandi" > /data/web_static/releases/test/index.html
 chown -R ubuntu:ubuntu /data/
 
-printf %s 'server {
+printf %s "server {
     listen 80 default;
     listen [::]:80 default;
     server_name muvandii.tech;
@@ -31,6 +31,6 @@ printf %s 'server {
         internal;
     }
 }
-' > /etc/nginx/sites-available/default || { echo "Failed to write nginx configuration"; exit 1; }
+" > /etc/nginx/sites-available/default || { echo "Failed to write nginx configuration"; exit 1; }
 
 service nginx restart || { echo "Failed to start nginx service"; exit 1; }
