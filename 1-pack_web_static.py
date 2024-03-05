@@ -1,20 +1,15 @@
-#!/usr/bin/python3
-"""
-Generates a .tgz archive using do_pack fun
-"""
-from fabric.api import local
 from datetime import datetime
+from fabric import local
 import os
 
-
 def do_pack():
-    """Generates a .tgz archive"""
+    '''this function packs a directory into a .tgz file'''
     try:
-        date = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        local("mkdir -p versions")
-        archive_name = "web_static_{}.tgz".format(date)
-        full_path = "versions/{}".format(archive_name)
-        local("tar -cvzf {} web_static/".format(full_path))
-        return full_path
-    except Exception:
-        return None
+         if not os.path.exists('versions'):
+              os.makedirs('versions')
+         date = datetime.now().strftime('%Y%m%d%H%M%S')
+         file_name = "versions/web_static_{}.tgz".format(date)
+         local('tar -cvzf {} web_static'.format(file_name))
+         return file_name
+    except:
+         return None 
