@@ -6,7 +6,7 @@ import os
 
 
 def do_pack():
-    '''this function packs a directory into a .tgz file'''
+    """this function packs a directory into a .tgz file"""
     try:
         if not os.path.exists('versions'):
             os.makedirs('versions')
@@ -18,7 +18,7 @@ def do_pack():
         return None 
 
 def do_deploy(archive_path):
-    '''this function deploys an archive to a web server'''
+    """this function deploys an archive to a web server"""
     if not os.path.exists(archive_path):
         return False
     try:
@@ -37,7 +37,7 @@ def do_deploy(archive_path):
         return False
 
 def deploy():
-    '''this function deploys an archive to a web server'''
+    """this function deploys an archive to a web server"""
     archive_path = do_pack()
     if archive_path is None:
         return False
