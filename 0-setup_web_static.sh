@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #script to confingure nginx
 
-if !command -v nginx &> /dev/null; then
+if ! command -v nginx &> /dev/null; then
         apt update
         apt -y install nginx
 
@@ -9,7 +9,7 @@ fi
 mkdir -p /data/web_static/releases/test/ /data/web_static/shared/
 #sudo touch /data/web_static/current/index.html
 ln -sf /data/web_static/releases/test/ /data/web_static/current
-echo "Mordecai Muvandi" > /data/web_static/releases/test/index.html > /dev/null
+echo "Mordecai Muvandi" > /data/web_static/releases/test/index.html
 chown -R ubuntu:ubuntu /data/
 
 printf %s "
@@ -33,6 +33,6 @@ server {
                 internal;
         }
 
-}" > /etc/nginx/sites-available/default > /dev/null
+}" > /etc/nginx/sites-available/default
 
 service nginx start                     
