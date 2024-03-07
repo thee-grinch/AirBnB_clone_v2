@@ -1,14 +1,4 @@
-from fabric import Connection, task
-
-CONNECTION_PROPERTIES = {
-    'host': '54.88.227.197',
-    'user': 'ubuntu',
-    'connect_kwargs': {
-        'key_filename': '/home/mordecai/.ssh/id_rsa'
-    },
-}
-
-@task
-def deploy(c):
-    c = Connection(**CONNECTION_PROPERTIES)
-    c.run('uname -a')
+import importlib
+m_name = '1-pack_web_static'
+pack = importlib.import_module(m_name)
+#  from pack import do_pack

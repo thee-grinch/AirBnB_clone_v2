@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 '''this module contains the function deploy'''
 from datetime import datetime
-from fabric import local
+from fabric.api import local,task, Connection
 import os
-
 
 def do_pack():
      '''this function packs a directory into a .tgz file'''
